@@ -1,4 +1,4 @@
-package com.graz.salatuk.ui.theme
+package com.graz.waqt.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

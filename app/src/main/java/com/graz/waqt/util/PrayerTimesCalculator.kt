@@ -1,4 +1,4 @@
-package com.graz.salatuk.util
+package com.graz.waqt.util
 
 import kotlin.math.*
 

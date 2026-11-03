@@ -1,4 +1,4 @@
-package com.graz.salatuk
+package com.graz.waqt
 
 import android.Manifest
 import android.content.Context
@@ -34,8 +34,8 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationServices
-import com.graz.salatuk.ui.theme.SalatukTheme
-import com.graz.salatuk.util.*
+import com.graz.waqt.ui.theme.WaqtTheme
+import com.graz.waqt.util.*
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
@@ -44,8 +44,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            SalatukTheme {
-                SalatukApp()
+            WaqtTheme {
+                WaqtApp()
             }
         }
     }
@@ -66,7 +66,7 @@ data class AppState(
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun SalatukApp() {
+fun WaqtApp() {
     val navController = rememberNavController()
     var state by remember { mutableStateOf(AppState()) }
     val context = LocalContext.current
@@ -204,8 +204,10 @@ fun PrayersScreen(state: AppState) {
         Spacer(Modifier.height(20.dp))
 
         // Header
-        Text("صلاتك", fontSize = 32.sp, fontWeight = FontWeight.Bold,
+        Text("وقت", fontSize = 34.sp, fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary)
+        Text("Waqt", fontSize = 16.sp, fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.primary.copy(0.7f))
         Text(state.city, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.6f))
         Text(
             SimpleDateFormat("EEEE d MMMM yyyy", Locale.FRENCH).format(Date()),
@@ -458,7 +460,7 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "Salatuk v1.0.0 — Usage personnel\nCalculs astronomiques locaux\nAnalysé avec REA",
+            "Waqt v1.1.0 — Usage personnel\nCalculs astronomiques locaux",
             fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
             textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
         )

@@ -1,4 +1,4 @@
-package com.graz.salatuk.ui.theme
+package com.graz.waqt.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun SalatukTheme(
+fun WaqtTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

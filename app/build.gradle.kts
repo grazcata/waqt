@@ -4,15 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "com.graz.salatuk"
+    namespace = "com.graz.waqt"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.graz.salatuk"
+        applicationId = "com.graz.waqt"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -61,7 +61,7 @@ android.applicationVariants.all {
     variant.outputs.all {
         val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
         if (variant.buildType.name == "release") {
-            output.outputFileName = "Salatuk-v${variant.versionName}.apk"
+            output.outputFileName = "Waqt-v${variant.versionName}.apk"
         }
     }
 }
