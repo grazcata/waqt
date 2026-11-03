@@ -320,52 +320,53 @@ fun SettingsScreen(
                 Spacer(Modifier.height(6.dp))
 
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                    FilterChip(
+                    SelectablePrayerChip(
+                        label = "Fajr (Sahur)",
                         selected = state.preReminderFajr,
                         onClick = {
                             val v = !state.preReminderFajr
                             prefs.edit().putBoolean("pre_reminder_fajr", v).apply()
                             onUpdate(state.copy(preReminderFajr = v))
-                        },
-                        label = { Text("Fajr (Sahur)") }
+                        }
                     )
-                    FilterChip(
+                    SelectablePrayerChip(
+                        label = "Dhuhr",
                         selected = state.preReminderDhuhr,
                         onClick = {
                             val v = !state.preReminderDhuhr
                             prefs.edit().putBoolean("pre_reminder_dhuhr", v).apply()
                             onUpdate(state.copy(preReminderDhuhr = v))
-                        },
-                        label = { Text("Dhuhr") }
+                        }
                     )
-                    FilterChip(
+                    SelectablePrayerChip(
+                        label = "Asr",
                         selected = state.preReminderAsr,
                         onClick = {
                             val v = !state.preReminderAsr
                             prefs.edit().putBoolean("pre_reminder_asr", v).apply()
                             onUpdate(state.copy(preReminderAsr = v))
-                        },
-                        label = { Text("Asr") }
+                        }
                     )
                 }
+                Spacer(Modifier.height(8.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                    FilterChip(
+                    SelectablePrayerChip(
+                        label = "Maghrib (Iftar)",
                         selected = state.preReminderMaghrib,
                         onClick = {
                             val v = !state.preReminderMaghrib
                             prefs.edit().putBoolean("pre_reminder_maghrib", v).apply()
                             onUpdate(state.copy(preReminderMaghrib = v))
-                        },
-                        label = { Text("Maghrib (Iftar)") }
+                        }
                     )
-                    FilterChip(
+                    SelectablePrayerChip(
+                        label = "Isha",
                         selected = state.preReminderIsha,
                         onClick = {
                             val v = !state.preReminderIsha
                             prefs.edit().putBoolean("pre_reminder_isha", v).apply()
                             onUpdate(state.copy(preReminderIsha = v))
-                        },
-                        label = { Text("Isha") }
+                        }
                     )
                 }
             }
@@ -435,52 +436,53 @@ fun SettingsScreen(
                     Text("Prières concernées :", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(0.7f))
                     Spacer(Modifier.height(4.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                        FilterChip(
+                        SelectablePrayerChip(
+                            label = "Fajr",
                             selected = state.silentFajr,
                             onClick = {
                                 val v = !state.silentFajr
                                 prefs.edit().putBoolean("silent_fajr", v).apply()
                                 onUpdate(state.copy(silentFajr = v))
-                            },
-                            label = { Text("Fajr") }
+                            }
                         )
-                        FilterChip(
+                        SelectablePrayerChip(
+                            label = "Dhuhr",
                             selected = state.silentDhuhr,
                             onClick = {
                                 val v = !state.silentDhuhr
                                 prefs.edit().putBoolean("silent_dhuhr", v).apply()
                                 onUpdate(state.copy(silentDhuhr = v))
-                            },
-                            label = { Text("Dhuhr") }
+                            }
                         )
-                        FilterChip(
+                        SelectablePrayerChip(
+                            label = "Asr",
                             selected = state.silentAsr,
                             onClick = {
                                 val v = !state.silentAsr
                                 prefs.edit().putBoolean("silent_asr", v).apply()
                                 onUpdate(state.copy(silentAsr = v))
-                            },
-                            label = { Text("Asr") }
+                            }
                         )
                     }
+                    Spacer(Modifier.height(8.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                        FilterChip(
+                        SelectablePrayerChip(
+                            label = "Maghrib",
                             selected = state.silentMaghrib,
                             onClick = {
                                 val v = !state.silentMaghrib
                                 prefs.edit().putBoolean("silent_maghrib", v).apply()
                                 onUpdate(state.copy(silentMaghrib = v))
-                            },
-                            label = { Text("Maghrib") }
+                            }
                         )
-                        FilterChip(
+                        SelectablePrayerChip(
+                            label = "Isha",
                             selected = state.silentIsha,
                             onClick = {
                                 val v = !state.silentIsha
                                 prefs.edit().putBoolean("silent_isha", v).apply()
                                 onUpdate(state.copy(silentIsha = v))
-                            },
-                            label = { Text("Isha") }
+                            }
                         )
                     }
 
@@ -562,7 +564,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.5.0 • Usage personnel\nCalculs astronomiques et audio 100% locaux",
+                "Version 1.5.1 • Usage personnel\nCalculs astronomiques et audio 100% locaux",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center
@@ -656,6 +658,43 @@ fun AudioStyleCard(
                 text = subtitle,
                 fontSize = 10.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(0.6f)
+            )
+        }
+    }
+}
+
+@Composable
+fun SelectablePrayerChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(20.dp),
+        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(0.5f),
+        border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(0.3f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (selected) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(14.dp)
+                )
+                Spacer(Modifier.width(4.dp))
+            }
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                color = if (selected) Color.White else MaterialTheme.colorScheme.onSurface.copy(0.7f)
             )
         }
     }
