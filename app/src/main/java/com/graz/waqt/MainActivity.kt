@@ -69,7 +69,7 @@ data class AppState(
     val hijriDate: HijriDate = HijriCalendar.fromGregorian(),
     val notifEnabled: Boolean = true,
     val adhanAudioEnabled: Boolean = true,
-    val adhanStyle: String = "maghrebi",
+    val adhanStyle: String = "maghrebi_2",
     val autoSilentEnabled: Boolean = false,
     val autoSilentDuration: Int = 20,
     val silentFajr: Boolean = true,
@@ -98,7 +98,7 @@ fun WaqtApp() {
             AppState(
                 notifEnabled = prefs.getBoolean("notif_enabled", true),
                 adhanAudioEnabled = prefs.getBoolean("adhan_audio_enabled", true),
-                adhanStyle = prefs.getString("adhan_style", "maghrebi") ?: "maghrebi",
+                adhanStyle = prefs.getString("adhan_style", "maghrebi_2") ?: "maghrebi_2",
                 autoSilentEnabled = prefs.getBoolean("auto_silent_enabled", false),
                 autoSilentDuration = prefs.getInt("auto_silent_duration", 20),
                 silentFajr = prefs.getBoolean("silent_fajr", true),

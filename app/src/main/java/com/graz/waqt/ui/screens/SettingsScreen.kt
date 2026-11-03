@@ -231,8 +231,18 @@ fun SettingsScreen(
 
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         AudioStyleCard(
-                            title = "Maghrébin",
-                            subtitle = "Maroc / Andalousie",
+                            title = "Marocain (Salatuk)",
+                            subtitle = "Style n°2 officiel",
+                            selected = state.adhanStyle == "maghrebi_2",
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                prefs.edit().putString("adhan_style", "maghrebi_2").apply()
+                                onUpdate(state.copy(adhanStyle = "maghrebi_2"))
+                            }
+                        )
+                        AudioStyleCard(
+                            title = "Maghrébin classique",
+                            subtitle = "Style n°1 traditionnel",
                             selected = state.adhanStyle == "maghrebi",
                             modifier = Modifier.weight(1f),
                             onClick = {
@@ -240,17 +250,18 @@ fun SettingsScreen(
                                 onUpdate(state.copy(adhanStyle = "maghrebi"))
                             }
                         )
-                        AudioStyleCard(
-                            title = "Haramayn",
-                            subtitle = "La Mecque / Médine",
-                            selected = state.adhanStyle == "haramayn",
-                            modifier = Modifier.weight(1f),
-                            onClick = {
-                                prefs.edit().putString("adhan_style", "haramayn").apply()
-                                onUpdate(state.copy(adhanStyle = "haramayn"))
-                            }
-                        )
                     }
+                    Spacer(Modifier.height(8.dp))
+                    AudioStyleCard(
+                        title = "Haramayn",
+                        subtitle = "La Mecque & Médine",
+                        selected = state.adhanStyle == "haramayn",
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            prefs.edit().putString("adhan_style", "haramayn").apply()
+                            onUpdate(state.copy(adhanStyle = "haramayn"))
+                        }
+                    )
                 }
 
                 Divider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
@@ -564,7 +575,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.5.1 • Usage personnel\nCalculs astronomiques et audio 100% locaux",
+                "Version 1.6.0 • Usage personnel\nAdhan Marocain officiel Salatuk inclus",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center

@@ -70,17 +70,27 @@ class AdhanPlaybackService : Service() {
         playlist.clear()
         currentIndex = 0
 
-        if (style == "haramayn") {
-            playlist.add(R.raw.haramayn_01_debut)
-            if (isFajr) playlist.add(R.raw.haramayn_01_fajr)
-            playlist.add(R.raw.haramayn_01_milieu)
-            playlist.add(R.raw.haramayn_01_fin)
-        } else {
-            // Default: Maghrebi
-            playlist.add(R.raw.maghrebi_01_debut)
-            if (isFajr) playlist.add(R.raw.maghrebi_01_fajr)
-            playlist.add(R.raw.maghrebi_01_milieu)
-            playlist.add(R.raw.maghrebi_01_fin)
+        when (style) {
+            "maghrebi_2" -> {
+                // Style Marocain n°2 (Salatuk officiel)
+                playlist.add(R.raw.maghrebi_02_debut)
+                if (isFajr) playlist.add(R.raw.maghrebi_02_fajr)
+                playlist.add(R.raw.maghrebi_02_milieu)
+                playlist.add(R.raw.maghrebi_02_fin)
+            }
+            "haramayn" -> {
+                playlist.add(R.raw.haramayn_01_debut)
+                if (isFajr) playlist.add(R.raw.haramayn_01_fajr)
+                playlist.add(R.raw.haramayn_01_milieu)
+                playlist.add(R.raw.haramayn_01_fin)
+            }
+            else -> {
+                // Style Marocain n°1 (Maghrebi traditionnel)
+                playlist.add(R.raw.maghrebi_01_debut)
+                if (isFajr) playlist.add(R.raw.maghrebi_01_fajr)
+                playlist.add(R.raw.maghrebi_01_milieu)
+                playlist.add(R.raw.maghrebi_01_fin)
+            }
         }
     }
 
