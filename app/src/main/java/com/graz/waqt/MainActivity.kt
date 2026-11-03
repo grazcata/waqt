@@ -98,45 +98,87 @@ fun WaqtApp() {
         }
     }
 
-    // Request location on launch
+    // Initialize with fallback location (Casablanca, Morocco) immediately so UI is NEVER stuck
+    LaunchedEffect(Unit) {
+        val savedLat = prefs.getFloat("saved_lat", 33.5731f).toDouble()
+        val savedLng = prefs.getFloat("saved_lng", -7.5898f).toDouble()
+        val savedCity = prefs.getString("saved_city", "Casablanca") ?: "Casablanca"
+        val tz = TimeZone.getDefault().rawOffset / 3600000.0
+        val cal = Calendar.getInstance()
+        val calc = PrayerTimesCalculator(state.method, state.asrJuristic)
+        val initialTimes = calc.calculate(
+            cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH),
+            savedLat, savedLng, tz
+        )
+        state = state.copy(
+            lat = savedLat,
+            lng = savedLng,
+            city = savedCity,
+            times = initialTimes,
+            qiblaAngle = PrayerTimesCalculator.qiblaDirection(savedLat, savedLng),
+            hijriDate = HijriCalendar.fromGregorian()
+        )
+    }
+
+    // Request fresh location on launch
     LaunchedEffect(locationPermissions.allPermissionsGranted) {
         if (locationPermissions.allPermissionsGranted) {
             try {
                 val fusedClient = LocationServices.getFusedLocationProviderClient(context)
+                
+                // Helper to update state with any valid location
+                fun applyLocation(loc: android.location.Location) {
+                    val tz = TimeZone.getDefault().rawOffset / 3600000.0
+                    val cal = Calendar.getInstance()
+                    val calc = PrayerTimesCalculator(state.method, state.asrJuristic)
+                    val times = calc.calculate(
+                        cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH),
+                        loc.latitude, loc.longitude, tz
+                    )
+                    var cityName = "%.2f°, %.2f°".format(loc.latitude, loc.longitude)
+                    try {
+                        @Suppress("DEPRECATION")
+                        val addresses = Geocoder(context, Locale.FRENCH).getFromLocation(loc.latitude, loc.longitude, 1)
+                        if (!addresses.isNullOrEmpty()) {
+                            cityName = addresses[0].locality ?: addresses[0].subAdminArea ?: cityName
+                        }
+                    } catch (_: Exception) {}
+
+                    // Save location for offline / instant future launches
+                    prefs.edit()
+                        .putFloat("saved_lat", loc.latitude.toFloat())
+                        .putFloat("saved_lng", loc.longitude.toFloat())
+                        .putString("saved_city", cityName)
+                        .apply()
+
+                    state = state.copy(
+                        lat = loc.latitude, lng = loc.longitude,
+                        city = cityName, times = times, locationReady = true,
+                        qiblaAngle = PrayerTimesCalculator.qiblaDirection(loc.latitude, loc.longitude),
+                        hijriDate = HijriCalendar.fromGregorian()
+                    )
+
+                    // Schedule alarms via AlarmManager
+                    PrayerAlarmReceiver.schedulePrayerAlarms(
+                        context,
+                        times.fajrHours,
+                        times.dhuhrHours,
+                        times.asrHours,
+                        times.maghribHours,
+                        times.ishaHours
+                    )
+                }
+
+                // Try lastLocation first, fallback to active current location request if null
                 fusedClient.lastLocation.addOnSuccessListener { loc ->
                     if (loc != null) {
-                        val tz = TimeZone.getDefault().rawOffset / 3600000.0
-                        val cal = Calendar.getInstance()
-                        val calc = PrayerTimesCalculator(state.method, state.asrJuristic)
-                        val times = calc.calculate(
-                            cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH),
-                            loc.latitude, loc.longitude, tz
-                        )
-                        var cityName = "%.2f°, %.2f°".format(loc.latitude, loc.longitude)
-                        try {
-                            @Suppress("DEPRECATION")
-                            val addresses = Geocoder(context, Locale.FRENCH).getFromLocation(loc.latitude, loc.longitude, 1)
-                            if (!addresses.isNullOrEmpty()) {
-                                cityName = addresses[0].locality ?: addresses[0].subAdminArea ?: cityName
-                            }
-                        } catch (_: Exception) {}
-
-                        state = state.copy(
-                            lat = loc.latitude, lng = loc.longitude,
-                            city = cityName, times = times, locationReady = true,
-                            qiblaAngle = PrayerTimesCalculator.qiblaDirection(loc.latitude, loc.longitude),
-                            hijriDate = HijriCalendar.fromGregorian()
-                        )
-
-                        // Schedule alarms via AlarmManager
-                        PrayerAlarmReceiver.schedulePrayerAlarms(
-                            context,
-                            times.fajrHours,
-                            times.dhuhrHours,
-                            times.asrHours,
-                            times.maghribHours,
-                            times.ishaHours
-                        )
+                        applyLocation(loc)
+                    } else {
+                        // Request active single update
+                        val priority = com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY
+                        fusedClient.getCurrentLocation(priority, null).addOnSuccessListener { freshLoc ->
+                            if (freshLoc != null) applyLocation(freshLoc)
+                        }
                     }
                 }
             } catch (_: SecurityException) {}
@@ -585,7 +627,7 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "Waqt v1.2.0 — Usage personnel\nCalculs astronomiques & Hégiriens locaux",
+            "Waqt v1.2.1 — Usage personnel\nCalculs astronomiques & Hégiriens locaux",
             fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
             textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
         )
