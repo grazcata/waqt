@@ -24,6 +24,11 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         val prefs = context.getSharedPreferences("waqt_prefs", Context.MODE_PRIVATE)
 
         when (action) {
+            ACTION_PRE_PRAYER_REMINDER -> {
+                val prayerName = intent.getStringExtra(EXTRA_PRAYER_NAME) ?: "Prière"
+                val minutesBefore = intent.getIntExtra(EXTRA_MINUTES_BEFORE, 15)
+                showPreReminderNotification(context, prayerName, minutesBefore)
+            }
             ACTION_PRAYER_ALARM -> {
                 val prayerName = intent.getStringExtra(EXTRA_PRAYER_NAME) ?: "Prière"
                 val prayerIcon = intent.getStringExtra(EXTRA_PRAYER_ICON) ?: "🕌"
@@ -47,9 +52,14 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                     showPrayerNotification(context, prayerName, prayerIcon)
                 }
 
-                // 2. Trigger auto-silent if enabled
-                if (prefs.getBoolean("auto_silent_enabled", false)) {
-                    val durationMin = prefs.getInt("auto_silent_duration", 20)
+                // 2. Trigger auto-silent if enabled for this specific prayer
+                if (prefs.getBoolean("auto_silent_enabled", false) && isPrayerSilentAllowed(prefs, prayerName)) {
+                    val isFriday = Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
+                    val durationMin = if (isFriday && prayerName.equals("Dhuhr", ignoreCase = true) && prefs.getBoolean("silent_jumuaa_special", true)) {
+                        prefs.getInt("silent_jumuaa_duration", 45)
+                    } else {
+                        prefs.getInt("auto_silent_duration", 20)
+                    }
                     enableSilentMode(context, durationMin)
                 }
             }
@@ -57,6 +67,54 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 restoreRingerMode(context)
             }
         }
+    }
+
+    private fun isPrayerSilentAllowed(prefs: android.content.SharedPreferences, prayerName: String): Boolean {
+        return when (prayerName.lowercase()) {
+            "fajr" -> prefs.getBoolean("silent_fajr", true)
+            "dhuhr" -> prefs.getBoolean("silent_dhuhr", true)
+            "asr" -> prefs.getBoolean("silent_asr", true)
+            "maghrib" -> prefs.getBoolean("silent_maghrib", true)
+            "isha" -> prefs.getBoolean("silent_isha", true)
+            else -> true
+        }
+    }
+
+    private fun showPreReminderNotification(context: Context, prayerName: String, minutesBefore: Int) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = "waqt_pre_reminders"
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Rappels d'anticipation",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Notifications avant l'entrée de la prière"
+            }
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(android.R.drawable.ic_popup_reminder)
+            .setContentTitle("⏳ Rappel : $prayerName dans $minutesBefore minutes")
+            .setContentText("Préparez-vous pour la prière de $prayerName")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        notificationManager.notify(("pre_" + prayerName).hashCode(), notification)
     }
 
     private fun showPrayerNotification(context: Context, prayerName: String, prayerIcon: String) {
@@ -154,9 +212,11 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_PRAYER_ALARM = "com.graz.waqt.ACTION_PRAYER_ALARM"
+        const val ACTION_PRE_PRAYER_REMINDER = "com.graz.waqt.ACTION_PRE_PRAYER_REMINDER"
         const val ACTION_RESTORE_RINGER = "com.graz.waqt.ACTION_RESTORE_RINGER"
         const val EXTRA_PRAYER_NAME = "prayer_name"
         const val EXTRA_PRAYER_ICON = "prayer_icon"
+        const val EXTRA_MINUTES_BEFORE = "minutes_before"
         const val REQUEST_CODE_RESTORE = 9999
 
         /**
@@ -237,6 +297,42 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                             pendingIntent
                         )
                     }
+
+                // Schedule pre-prayer reminder if enabled
+                val prefs = context.getSharedPreferences("waqt_prefs", Context.MODE_PRIVATE)
+                val preRemindKey = "pre_reminder_" + name.lowercase()
+                if (prefs.getBoolean(preRemindKey, false)) {
+                    val preMin = prefs.getInt("pre_reminder_minutes", 15)
+                    val preCal = (cal.clone() as Calendar).apply {
+                        add(Calendar.MINUTE, -preMin)
+                    }
+                    if (preCal.timeInMillis > System.currentTimeMillis()) {
+                        val preIntent = Intent(context, PrayerAlarmReceiver::class.java).apply {
+                            action = ACTION_PRE_PRAYER_REMINDER
+                            putExtra(EXTRA_PRAYER_NAME, name)
+                            putExtra(EXTRA_MINUTES_BEFORE, preMin)
+                        }
+                        val prePendingIntent = PendingIntent.getBroadcast(
+                            context,
+                            index + 200,
+                            preIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                        try {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                if (alarmManager.canScheduleExactAlarms()) {
+                                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, preCal.timeInMillis, prePendingIntent)
+                                } else {
+                                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, preCal.timeInMillis, prePendingIntent)
+                                }
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, preCal.timeInMillis, prePendingIntent)
+                            } else {
+                                alarmManager.setExact(AlarmManager.RTC_WAKEUP, preCal.timeInMillis, prePendingIntent)
+                            }
+                        } catch (_: SecurityException) {}
+                    }
+                }
                 } catch (e: SecurityException) {
                     // Fail gracefully with inexact alarm if security exception occurs
                     alarmManager.set(

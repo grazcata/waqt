@@ -36,6 +36,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationServices
 import com.graz.waqt.service.PrayerAlarmReceiver
+import com.graz.waqt.ui.screens.MonthlyCalendarScreen
 import com.graz.waqt.ui.theme.WaqtTheme
 import com.graz.waqt.util.*
 import kotlinx.coroutines.delay
@@ -70,6 +71,19 @@ data class AppState(
     val adhanStyle: String = "maghrebi",
     val autoSilentEnabled: Boolean = false,
     val autoSilentDuration: Int = 20,
+    val silentFajr: Boolean = true,
+    val silentDhuhr: Boolean = true,
+    val silentAsr: Boolean = true,
+    val silentMaghrib: Boolean = true,
+    val silentIsha: Boolean = true,
+    val silentJumuaaSpecial: Boolean = true,
+    val silentJumuaaDuration: Int = 45,
+    val preReminderMinutes: Int = 15,
+    val preReminderFajr: Boolean = false,
+    val preReminderDhuhr: Boolean = false,
+    val preReminderAsr: Boolean = false,
+    val preReminderMaghrib: Boolean = false,
+    val preReminderIsha: Boolean = false,
 )
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
@@ -86,6 +100,19 @@ fun WaqtApp() {
                 adhanStyle = prefs.getString("adhan_style", "maghrebi") ?: "maghrebi",
                 autoSilentEnabled = prefs.getBoolean("auto_silent_enabled", false),
                 autoSilentDuration = prefs.getInt("auto_silent_duration", 20),
+                silentFajr = prefs.getBoolean("silent_fajr", true),
+                silentDhuhr = prefs.getBoolean("silent_dhuhr", true),
+                silentAsr = prefs.getBoolean("silent_asr", true),
+                silentMaghrib = prefs.getBoolean("silent_maghrib", true),
+                silentIsha = prefs.getBoolean("silent_isha", true),
+                silentJumuaaSpecial = prefs.getBoolean("silent_jumuaa_special", true),
+                silentJumuaaDuration = prefs.getInt("silent_jumuaa_duration", 45),
+                preReminderMinutes = prefs.getInt("pre_reminder_minutes", 15),
+                preReminderFajr = prefs.getBoolean("pre_reminder_fajr", false),
+                preReminderDhuhr = prefs.getBoolean("pre_reminder_dhuhr", false),
+                preReminderAsr = prefs.getBoolean("pre_reminder_asr", false),
+                preReminderMaghrib = prefs.getBoolean("pre_reminder_maghrib", false),
+                preReminderIsha = prefs.getBoolean("pre_reminder_isha", false),
             )
         )
     }
@@ -224,22 +251,29 @@ fun WaqtApp() {
                     onClick = { selectedTab = 0; navController.navigate("prayers") { popUpTo(0) } }
                 )
                 NavigationBarItem(
+                    icon = { Icon(Icons.Default.CalendarMonth, "Calendrier") },
+                    label = { Text("Calendrier") },
+                    selected = selectedTab == 1,
+                    onClick = { selectedTab = 1; navController.navigate("calendar") { popUpTo(0) } }
+                )
+                NavigationBarItem(
                     icon = { Icon(Icons.Default.Explore, "Qibla") },
                     label = { Text("Qibla") },
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1; navController.navigate("qibla") { popUpTo(0) } }
+                    selected = selectedTab == 2,
+                    onClick = { selectedTab = 2; navController.navigate("qibla") { popUpTo(0) } }
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Settings, "Réglages") },
                     label = { Text("Réglages") },
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2; navController.navigate("settings") { popUpTo(0) } }
+                    selected = selectedTab == 3,
+                    onClick = { selectedTab = 3; navController.navigate("settings") { popUpTo(0) } }
                 )
             }
         }
     ) { padding ->
         NavHost(navController, startDestination = "prayers", Modifier.padding(padding)) {
             composable("prayers") { PrayersScreen(state) }
+            composable("calendar") { MonthlyCalendarScreen(state) }
             composable("qibla") { QiblaScreen(state) }
             composable("settings") {
                 SettingsScreen(state) { newState -> state = newState }
@@ -618,6 +652,75 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
 
                 Divider(Modifier.padding(vertical = 12.dp))
 
+                // Pre-prayer reminders
+                Column {
+                    Text("Rappels avant la prière", fontWeight = FontWeight.Medium)
+                    Text("Notification d'anticipation : ${state.preReminderMinutes} min avant", fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+                    Spacer(Modifier.height(4.dp))
+                    Slider(
+                        value = state.preReminderMinutes.toFloat(),
+                        onValueChange = { min ->
+                            val m = min.toInt()
+                            prefs.edit().putInt("pre_reminder_minutes", m).apply()
+                            onUpdate(state.copy(preReminderMinutes = m))
+                        },
+                        valueRange = 5f..30f,
+                        steps = 4
+                    )
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                        FilterChip(
+                            selected = state.preReminderFajr,
+                            onClick = {
+                                val v = !state.preReminderFajr
+                                prefs.edit().putBoolean("pre_reminder_fajr", v).apply()
+                                onUpdate(state.copy(preReminderFajr = v))
+                            },
+                            label = { Text("Fajr (Sahur)") }
+                        )
+                        FilterChip(
+                            selected = state.preReminderDhuhr,
+                            onClick = {
+                                val v = !state.preReminderDhuhr
+                                prefs.edit().putBoolean("pre_reminder_dhuhr", v).apply()
+                                onUpdate(state.copy(preReminderDhuhr = v))
+                            },
+                            label = { Text("Dhuhr") }
+                        )
+                    }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                        FilterChip(
+                            selected = state.preReminderAsr,
+                            onClick = {
+                                val v = !state.preReminderAsr
+                                prefs.edit().putBoolean("pre_reminder_asr", v).apply()
+                                onUpdate(state.copy(preReminderAsr = v))
+                            },
+                            label = { Text("Asr") }
+                        )
+                        FilterChip(
+                            selected = state.preReminderMaghrib,
+                            onClick = {
+                                val v = !state.preReminderMaghrib
+                                prefs.edit().putBoolean("pre_reminder_maghrib", v).apply()
+                                onUpdate(state.copy(preReminderMaghrib = v))
+                            },
+                            label = { Text("Maghrib") }
+                        )
+                        FilterChip(
+                            selected = state.preReminderIsha,
+                            onClick = {
+                                val v = !state.preReminderIsha
+                                prefs.edit().putBoolean("pre_reminder_isha", v).apply()
+                                onUpdate(state.copy(preReminderIsha = v))
+                            },
+                            label = { Text("Isha") }
+                        )
+                    }
+                }
+
+                Divider(Modifier.padding(vertical = 12.dp))
+
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -640,7 +743,7 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
                 if (state.autoSilentEnabled) {
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Durée du silence : ${state.autoSilentDuration} minutes",
+                        "Durée standard : ${state.autoSilentDuration} minutes",
                         fontSize = 12.sp, color = MaterialTheme.colorScheme.primary
                     )
                     Slider(
@@ -653,6 +756,79 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
                         valueRange = 10f..45f,
                         steps = 6
                     )
+
+                    Spacer(Modifier.height(8.dp))
+                    Text("Prières concernées :", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(4.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                        FilterChip(
+                            selected = state.silentFajr,
+                            onClick = {
+                                val v = !state.silentFajr
+                                prefs.edit().putBoolean("silent_fajr", v).apply()
+                                onUpdate(state.copy(silentFajr = v))
+                            },
+                            label = { Text("Fajr") }
+                        )
+                        FilterChip(
+                            selected = state.silentDhuhr,
+                            onClick = {
+                                val v = !state.silentDhuhr
+                                prefs.edit().putBoolean("silent_dhuhr", v).apply()
+                                onUpdate(state.copy(silentDhuhr = v))
+                            },
+                            label = { Text("Dhuhr") }
+                        )
+                        FilterChip(
+                            selected = state.silentAsr,
+                            onClick = {
+                                val v = !state.silentAsr
+                                prefs.edit().putBoolean("silent_asr", v).apply()
+                                onUpdate(state.copy(silentAsr = v))
+                            },
+                            label = { Text("Asr") }
+                        )
+                    }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                        FilterChip(
+                            selected = state.silentMaghrib,
+                            onClick = {
+                                val v = !state.silentMaghrib
+                                prefs.edit().putBoolean("silent_maghrib", v).apply()
+                                onUpdate(state.copy(silentMaghrib = v))
+                            },
+                            label = { Text("Maghrib") }
+                        )
+                        FilterChip(
+                            selected = state.silentIsha,
+                            onClick = {
+                                val v = !state.silentIsha
+                                prefs.edit().putBoolean("silent_isha", v).apply()
+                                onUpdate(state.copy(silentIsha = v))
+                            },
+                            label = { Text("Isha") }
+                        )
+                    }
+
+                    Spacer(Modifier.height(12.dp))
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text("Vendredi (Joumou'a) spécial", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            Text("Durée allongée pour le prêche : ${state.silentJumuaaDuration} min", fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+                        }
+                        Switch(
+                            checked = state.silentJumuaaSpecial,
+                            onCheckedChange = { checked ->
+                                prefs.edit().putBoolean("silent_jumuaa_special", checked).apply()
+                                onUpdate(state.copy(silentJumuaaSpecial = checked))
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -676,7 +852,7 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "Waqt v1.3.0 — Usage personnel\nCalculs astronomiques & Moteur audio Adhan",
+            "Waqt v1.4.0 — Usage personnel\nCalendrier Mensuel, Rappels d'Anticipation & Joumou'a",
             fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
             textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
         )
