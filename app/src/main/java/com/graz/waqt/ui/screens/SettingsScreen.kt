@@ -231,8 +231,8 @@ fun SettingsScreen(
 
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         AudioStyleCard(
-                            title = "Marocain (Salatuk)",
-                            subtitle = "Style n°2 officiel",
+                            title = "Marocain officiel",
+                            subtitle = "Style authentique (Habous)",
                             selected = state.adhanStyle == "maghrebi_2",
                             modifier = Modifier.weight(1f),
                             onClick = {
@@ -242,7 +242,7 @@ fun SettingsScreen(
                         )
                         AudioStyleCard(
                             title = "Maghrébin classique",
-                            subtitle = "Style n°1 traditionnel",
+                            subtitle = "Style traditionnel",
                             selected = state.adhanStyle == "maghrebi",
                             modifier = Modifier.weight(1f),
                             onClick = {
@@ -575,7 +575,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.6.1 • Usage personnel\nAdhan Marocain officiel & Nouvelle Icône Mosquée",
+                "Version 1.6.2 • Usage personnel\nAdhan Marocain officiel & Nouvelle Icône Mosquée",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center

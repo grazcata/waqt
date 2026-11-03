@@ -11,7 +11,7 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 - ⏳ **Rappels d'anticipation avant la prière** — notification d'alerte réglable (de 5 à 30 min avant, ex: Sahur avant Fajr) paramétrable par prière
 - 🔕 **Mode silencieux intelligent par prière** — activation individuelle par prière avec prise en charge spéciale du Vendredi (**Joumou'a**, durée de silence allongée pour le prêche)
 - 📢 **Moteur Audio d'Adhan complet** — lecture séquentielle avec WakeLock (début → fajr → milieu → fin)
-  - **Adhan Marocain officiel (Salatuk)** : récitation marocaine authentique par défaut
+  - **Adhan Marocain officiel** : récitation marocaine authentique (Habous) par défaut
   - **Adhan Maghrébin classique** : style traditionnel n°1
   - **Adhan Haramayn** : récitation de La Mecque / Médine
   - Formule spéciale Fajr incluse automatiquement (*الصلاة خير من النوم*)
