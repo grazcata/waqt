@@ -194,14 +194,38 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    alarmManager.setExactAndAllowWhileIdle(
-                        AlarmManager.RTC_WAKEUP,
-                        cal.timeInMillis,
-                        pendingIntent
-                    )
-                } else {
-                    alarmManager.setExact(
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        if (alarmManager.canScheduleExactAlarms()) {
+                            alarmManager.setExactAndAllowWhileIdle(
+                                AlarmManager.RTC_WAKEUP,
+                                cal.timeInMillis,
+                                pendingIntent
+                            )
+                        } else {
+                            // Fallback to inexact alarm if user hasn't granted exact alarm permission
+                            alarmManager.setAndAllowWhileIdle(
+                                AlarmManager.RTC_WAKEUP,
+                                cal.timeInMillis,
+                                pendingIntent
+                            )
+                        }
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmManager.setExactAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            cal.timeInMillis,
+                            pendingIntent
+                        )
+                    } else {
+                        alarmManager.setExact(
+                            AlarmManager.RTC_WAKEUP,
+                            cal.timeInMillis,
+                            pendingIntent
+                        )
+                    }
+                } catch (e: SecurityException) {
+                    // Fail gracefully with inexact alarm if security exception occurs
+                    alarmManager.set(
                         AlarmManager.RTC_WAKEUP,
                         cal.timeInMillis,
                         pendingIntent

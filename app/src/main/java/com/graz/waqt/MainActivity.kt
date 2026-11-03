@@ -627,7 +627,7 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "Waqt v1.2.1 — Usage personnel\nCalculs astronomiques & Hégiriens locaux",
+            "Waqt v1.2.2 — Usage personnel\nCalculs astronomiques & Hégiriens locaux",
             fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
             textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
         )
