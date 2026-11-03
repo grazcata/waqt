@@ -7,12 +7,16 @@ android {
     namespace = "com.graz.waqt"
     compileSdk = 34
 
+    androidResources {
+        noCompress += listOf("ogg", "ttf")
+    }
+
     defaultConfig {
         applicationId = "com.graz.waqt"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10
-        versionName = "1.6.0"
+        versionCode = 11
+        versionName = "1.6.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -34,6 +38,12 @@ android {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Disable AAPT2 optimize resources on ARM64 host
+            packaging {
+                resources {
+                    excludes += "/META-INF/{AL2.0,LGPL2.1}"
+                }
+            }
         }
     }
     compileOptions {

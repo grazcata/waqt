@@ -4,26 +4,73 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Mosque dome -->
+
+    <!-- Subtle Golden Halo behind the Mosque -->
     <path
-        android:pathData="M54,28 C40,28 32,42 32,52 L32,78 L76,78 L76,52 C76,42 68,28 54,28Z"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFF"
-        android:fillColor="#00000000"/>
-    <!-- Crescent -->
+        android:pathData="M54,20 A34,34 0 1,1 53.9,20 Z"
+        android:fillColor="#15FFFFFF" />
+
+    <!-- Left Minaret -->
     <path
-        android:pathData="M54,34 A6,6 0 1,1 54,22 A5,5 0 1,0 54,34Z"
-        android:fillColor="#FFFFFF"/>
-    <!-- Door -->
+        android:pathData="M24,40 L28,40 L28,82 L24,82 Z"
+        android:fillColor="#E6FFFFFF" />
+    <!-- Left Minaret Dome & Spire -->
     <path
-        android:pathData="M48,78 L48,66 C48,62 60,62 60,66 L60,78"
+        android:pathData="M23,40 C23,36 26,33 26,30 C26,33 29,36 29,40 Z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M26,30 L26,26"
         android:strokeWidth="1.5"
-        android:strokeColor="#FFFFFF"
-        android:fillColor="#00000000"/>
-    <!-- Base -->
+        android:strokeColor="#C8A45C" />
+
+    <!-- Right Minaret -->
     <path
-        android:pathData="M28,78 L80,78"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFF"
-        android:fillColor="#00000000"/>
+        android:pathData="M80,40 L84,40 L84,82 L80,82 Z"
+        android:fillColor="#E6FFFFFF" />
+    <!-- Right Minaret Dome & Spire -->
+    <path
+        android:pathData="M79,40 C79,36 82,33 82,30 C82,33 85,36 85,40 Z"
+        android:fillColor="#FFFFFF" />
+    <path
+        android:pathData="M82,30 L82,26"
+        android:strokeWidth="1.5"
+        android:strokeColor="#C8A45C" />
+
+    <!-- Main Grand Mosque Dome -->
+    <path
+        android:pathData="M34,58 C34,42 43,32 54,30 C65,32 74,42 74,58 L74,82 L34,82 Z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Top Crescent on Grand Dome (Gold) -->
+    <path
+        android:pathData="M54,30 L54,24"
+        android:strokeWidth="1.8"
+        android:strokeColor="#C8A45C" />
+    <path
+        android:pathData="M54,23 A3.5,3.5 0 1,1 54,16 A2.8,2.8 0 1,0 54,23 Z"
+        android:fillColor="#C8A45C" />
+
+    <!-- Main Arch Doorway (Islamic Arch Style) -->
+    <path
+        android:pathData="M47,82 L47,68 C47,63 54,60 54,60 C54,60 61,63 61,68 L61,82 Z"
+        android:fillColor="#1B7A4A" />
+
+    <!-- Left Small Arch Window -->
+    <path
+        android:pathData="M37,70 L37,63 C37,60 41,58 41,58 C41,58 44,60 44,63 L44,70 Z"
+        android:fillColor="#1B7A4A"
+        android:fillAlpha="0.75" />
+
+    <!-- Right Small Arch Window -->
+    <path
+        android:pathData="M64,70 L64,63 C64,60 67,58 67,58 C67,58 71,60 71,63 L71,70 Z"
+        android:fillColor="#1B7A4A"
+        android:fillAlpha="0.75" />
+
+    <!-- Mosque Base / Courtyard Foundation Line -->
+    <path
+        android:pathData="M16,82 L92,82"
+        android:strokeWidth="2.5"
+        android:strokeColor="#C8A45C"
+        android:strokeLineCap="round" />
 </vector>

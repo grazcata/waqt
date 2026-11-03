@@ -5,6 +5,7 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 ## Fonctionnalités
 
 - 🎨 **Interface Moderne & Épurée** — design Material 3 soigné, cartes thématiques et typographie soignée
+- 🕌 **Nouvelle Icône Vectorielle Mosquée** — dôme islamique stylisé, minarets et croissant doré
 - 🕌 **Horaires des 5 prières + Chourouq** — calculs astronomiques locaux (aucune API externe requise)
 - 📅 **Calendrier Mensuel Interactif & Dates Hégiriennes** — navigation par mois, calcul des horaires de n'importe quel jour, repères des Jours Blancs (13, 14, 15 Hijri) et Joumou'a
 - ⏳ **Rappels d'anticipation avant la prière** — notification d'alerte réglable (de 5 à 30 min avant, ex: Sahur avant Fajr) paramétrable par prière

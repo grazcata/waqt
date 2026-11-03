@@ -575,7 +575,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.6.0 • Usage personnel\nAdhan Marocain officiel Salatuk inclus",
+                "Version 1.6.1 • Usage personnel\nAdhan Marocain officiel & Nouvelle Icône Mosquée",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center
