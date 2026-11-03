@@ -66,6 +66,8 @@ data class AppState(
     val locationReady: Boolean = false,
     val hijriDate: HijriDate = HijriCalendar.fromGregorian(),
     val notifEnabled: Boolean = true,
+    val adhanAudioEnabled: Boolean = true,
+    val adhanStyle: String = "maghrebi",
     val autoSilentEnabled: Boolean = false,
     val autoSilentDuration: Int = 20,
 )
@@ -80,6 +82,8 @@ fun WaqtApp() {
         mutableStateOf(
             AppState(
                 notifEnabled = prefs.getBoolean("notif_enabled", true),
+                adhanAudioEnabled = prefs.getBoolean("adhan_audio_enabled", true),
+                adhanStyle = prefs.getString("adhan_style", "maghrebi") ?: "maghrebi",
                 autoSilentEnabled = prefs.getBoolean("auto_silent_enabled", false),
                 autoSilentDuration = prefs.getInt("auto_silent_duration", 20),
             )
@@ -575,6 +579,51 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(Modifier.weight(1f)) {
+                        Text("Voix de l'Adhan", fontWeight = FontWeight.Medium)
+                        Text("Joue l'Adhan complet à l'heure exacte", fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+                    }
+                    Switch(
+                        checked = state.adhanAudioEnabled,
+                        onCheckedChange = { checked ->
+                            prefs.edit().putBoolean("adhan_audio_enabled", checked).apply()
+                            onUpdate(state.copy(adhanAudioEnabled = checked))
+                        }
+                    )
+                }
+
+                if (state.adhanAudioEnabled) {
+                    Spacer(Modifier.height(8.dp))
+                    Text("Style de récitation :", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.height(4.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = state.adhanStyle == "maghrebi",
+                            onClick = {
+                                prefs.edit().putString("adhan_style", "maghrebi").apply()
+                                onUpdate(state.copy(adhanStyle = "maghrebi"))
+                            },
+                            label = { Text("Maghrébin (Maroc)") }
+                        )
+                        FilterChip(
+                            selected = state.adhanStyle == "haramayn",
+                            onClick = {
+                                prefs.edit().putString("adhan_style", "haramayn").apply()
+                                onUpdate(state.copy(adhanStyle = "haramayn"))
+                            },
+                            label = { Text("Haramayn (Makkah)") }
+                        )
+                    }
+                }
+
+                Divider(Modifier.padding(vertical = 12.dp))
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
                         Text("Mode silencieux automatique", fontWeight = FontWeight.Medium)
                         Text("Passe en vibreur pendant la prière puis restaure", fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
@@ -627,7 +676,7 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "Waqt v1.2.2 — Usage personnel\nCalculs astronomiques & Hégiriens locaux",
+            "Waqt v1.3.0 — Usage personnel\nCalculs astronomiques & Moteur audio Adhan",
             fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
             textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
         )

@@ -5,6 +5,10 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 ## Fonctionnalités
 
 - 🕌 **Horaires des 5 prières + Chourouq** — calculs astronomiques locaux (aucune API externe requise)
+- 📢 **Moteur Audio d'Adhan complet** — lecture séquentielle avec WakeLock (début → fajr → milieu → fin)
+  - Deux styles de récitation inclus : **Maghrébin (Maroc)** et **Haramayn (Makkah)**
+  - Formule spéciale Fajr incluse automatiquement (*الصلاة خير من النوم*)
+- 🚨 **Écran d'alarme plein écran (`AdhanAlarmActivity`)** — s'affiche par-dessus l'écran de verrouillage avec bouton d'arrêt
 - 📅 **Calendrier Hégirien (Hijri)** — conversion astronomique locale avec affichage en arabe et en français
 - 🔔 **Rappels de prière** — alarmes programmées via `AlarmManager` avec notification haute priorité et sonnerie
 - 🔕 **Mode silencieux automatique** — bascule automatiquement en vibreur pendant la prière puis restaure le volume initial (durée réglable de 10 à 45 min)

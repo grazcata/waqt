@@ -28,8 +28,22 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 val prayerName = intent.getStringExtra(EXTRA_PRAYER_NAME) ?: "Prière"
                 val prayerIcon = intent.getStringExtra(EXTRA_PRAYER_ICON) ?: "🕌"
 
-                // 1. Show notification
-                if (prefs.getBoolean("notif_enabled", true)) {
+                // 1. Play Adhan audio via AdhanPlaybackService if enabled
+                val adhanAudioEnabled = prefs.getBoolean("adhan_audio_enabled", true)
+                if (adhanAudioEnabled) {
+                    val adhanStyle = prefs.getString("adhan_style", "maghrebi") ?: "maghrebi"
+                    val serviceIntent = Intent(context, AdhanPlaybackService::class.java).apply {
+                        setAction(AdhanPlaybackService.ACTION_START_ADHAN)
+                        putExtra(AdhanPlaybackService.EXTRA_PRAYER_NAME, prayerName)
+                        putExtra(AdhanPlaybackService.EXTRA_ADHAN_STYLE, adhanStyle)
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        context.startForegroundService(serviceIntent)
+                    } else {
+                        context.startService(serviceIntent)
+                    }
+                } else if (prefs.getBoolean("notif_enabled", true)) {
+                    // Standard notification without full Adhan voice
                     showPrayerNotification(context, prayerName, prayerIcon)
                 }
 
