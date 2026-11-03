@@ -4,6 +4,7 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 
 ## Fonctionnalités
 
+- 🔔 **Activation / Désactivation du son par prière** — bouton cloche interactif (🔔 / 🔕) directement sur chaque ligne de prière dans l'écran d'accueil
 - 🎨 **Interface Moderne & Épurée** — design Material 3 soigné, cartes thématiques et typographie soignée
 - 🕌 **Nouvelle Icône Vectorielle Mosquée** — dôme islamique stylisé, minarets et croissant doré
 - 🕌 **Horaires des 5 prières + Chourouq** — calculs astronomiques locaux (aucune API externe requise)

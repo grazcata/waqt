@@ -70,6 +70,11 @@ data class AppState(
     val notifEnabled: Boolean = true,
     val adhanAudioEnabled: Boolean = true,
     val adhanStyle: String = "maghrebi_2",
+    val soundFajr: Boolean = true,
+    val soundDhuhr: Boolean = true,
+    val soundAsr: Boolean = true,
+    val soundMaghrib: Boolean = true,
+    val soundIsha: Boolean = true,
     val autoSilentEnabled: Boolean = false,
     val autoSilentDuration: Int = 20,
     val silentFajr: Boolean = true,
@@ -99,6 +104,11 @@ fun WaqtApp() {
                 notifEnabled = prefs.getBoolean("notif_enabled", true),
                 adhanAudioEnabled = prefs.getBoolean("adhan_audio_enabled", true),
                 adhanStyle = prefs.getString("adhan_style", "maghrebi_2") ?: "maghrebi_2",
+                soundFajr = prefs.getBoolean("sound_fajr", true),
+                soundDhuhr = prefs.getBoolean("sound_dhuhr", true),
+                soundAsr = prefs.getBoolean("sound_asr", true),
+                soundMaghrib = prefs.getBoolean("sound_maghrib", true),
+                soundIsha = prefs.getBoolean("sound_isha", true),
                 autoSilentEnabled = prefs.getBoolean("auto_silent_enabled", false),
                 autoSilentDuration = prefs.getInt("auto_silent_duration", 20),
                 silentFajr = prefs.getBoolean("silent_fajr", true),
@@ -273,7 +283,22 @@ fun WaqtApp() {
         }
     ) { padding ->
         NavHost(navController, startDestination = "prayers", Modifier.padding(padding)) {
-            composable("prayers") { PrayersScreen(state) }
+            composable("prayers") {
+                PrayersScreen(
+                    state = state,
+                    onToggleSound = { prayerKey, isEnabled ->
+                        prefs.edit().putBoolean("sound_$prayerKey", isEnabled).apply()
+                        state = when (prayerKey) {
+                            "fajr" -> state.copy(soundFajr = isEnabled)
+                            "dhuhr" -> state.copy(soundDhuhr = isEnabled)
+                            "asr" -> state.copy(soundAsr = isEnabled)
+                            "maghrib" -> state.copy(soundMaghrib = isEnabled)
+                            "isha" -> state.copy(soundIsha = isEnabled)
+                            else -> state
+                        }
+                    }
+                )
+            }
             composable("calendar") { MonthlyCalendarScreen(state) }
             composable("qibla") { QiblaScreen(state) }
             composable("settings") {
@@ -285,14 +310,17 @@ fun WaqtApp() {
 
 // ─── Prayers Screen ───
 @Composable
-fun PrayersScreen(state: AppState) {
+fun PrayersScreen(
+    state: AppState,
+    onToggleSound: (String, Boolean) -> Unit = { _, _ -> }
+) {
     val prayers = listOf(
-        "🌙" to "Fajr" to (state.times?.fajr to state.times?.fajrHours),
-        "🌅" to "Lever" to (state.times?.sunrise to state.times?.sunriseHours),
-        "☀️" to "Dhuhr" to (state.times?.dhuhr to state.times?.dhuhrHours),
-        "🌤️" to "Asr" to (state.times?.asr to state.times?.asrHours),
-        "🌇" to "Maghrib" to (state.times?.maghrib to state.times?.maghribHours),
-        "🌃" to "Isha" to (state.times?.isha to state.times?.ishaHours),
+        "🌙" to ("Fajr" to "fajr") to (state.times?.fajr to state.times?.fajrHours),
+        "🌅" to ("Lever" to "sunrise") to (state.times?.sunrise to state.times?.sunriseHours),
+        "☀️" to ("Dhuhr" to "dhuhr") to (state.times?.dhuhr to state.times?.dhuhrHours),
+        "🌤️" to ("Asr" to "asr") to (state.times?.asr to state.times?.asrHours),
+        "🌇" to ("Maghrib" to "maghrib") to (state.times?.maghrib to state.times?.maghribHours),
+        "🌃" to ("Isha" to "isha") to (state.times?.isha to state.times?.ishaHours),
     )
 
     // Find next prayer
@@ -349,7 +377,7 @@ fun PrayersScreen(state: AppState) {
         Spacer(Modifier.height(16.dp))
 
         // Countdown card
-        val nextName = prayers.getOrNull(nextIdx)?.first?.second ?: "Fajr"
+        val nextName = prayers.getOrNull(nextIdx)?.first?.second?.first ?: "Fajr"
         val nextIcon = prayers.getOrNull(nextIdx)?.first?.first ?: "🌙"
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -380,11 +408,21 @@ fun PrayersScreen(state: AppState) {
         Spacer(Modifier.height(12.dp))
 
         // Prayer rows
-        prayers.forEachIndexed { idx, (iconName, timeP) ->
-            val (icon, name) = iconName
+        prayers.forEachIndexed { idx, (iconData, timeP) ->
+            val icon = iconData.first
+            val (name, prayerKey) = iconData.second
             val (time, _) = timeP
             val isNext = idx == nextIdx
             val isSunrise = idx == 1
+
+            val isSoundActive = when (prayerKey) {
+                "fajr" -> state.soundFajr
+                "dhuhr" -> state.soundDhuhr
+                "asr" -> state.soundAsr
+                "maghrib" -> state.soundMaghrib
+                "isha" -> state.soundIsha
+                else -> false
+            }
 
             Card(
                 modifier = Modifier
@@ -401,8 +439,7 @@ fun PrayersScreen(state: AppState) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-                        .then(if (isSunrise) Modifier else Modifier),
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(icon, fontSize = 22.sp, modifier = Modifier.width(36.dp))
@@ -417,6 +454,25 @@ fun PrayersScreen(state: AppState) {
                         color = if (isSunrise) MaterialTheme.colorScheme.primary.copy(0.5f)
                         else MaterialTheme.colorScheme.primary
                     )
+
+                    // Sound Toggle Icon Button (only for prayers, not sunrise)
+                    if (!isSunrise) {
+                        Spacer(Modifier.width(12.dp))
+                        IconButton(
+                            onClick = { onToggleSound(prayerKey, !isSoundActive) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isSoundActive) Icons.Default.NotificationsActive else Icons.Default.NotificationsOff,
+                                contentDescription = if (isSoundActive) "Couper le son" else "Activer le son",
+                                tint = if (isSoundActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(0.35f),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    } else {
+                        // Spacer to maintain alignment
+                        Spacer(Modifier.width(48.dp))
+                    }
                 }
             }
         }

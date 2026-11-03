@@ -575,7 +575,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.6.2 • Usage personnel\nAdhan Marocain officiel & Nouvelle Icône Mosquée",
+                "Version 1.7.0 • Usage personnel\nBoutons d'Adhan individuels par prière",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center
