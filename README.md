@@ -5,6 +5,9 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 ## Fonctionnalités
 
 - 🕌 **Horaires des 5 prières + Chourouq** — calculs astronomiques locaux (aucune API externe requise)
+- 📅 **Calendrier Hégirien (Hijri)** — conversion astronomique locale avec affichage en arabe et en français
+- 🔔 **Rappels de prière** — alarmes programmées via `AlarmManager` avec notification haute priorité et sonnerie
+- 🔕 **Mode silencieux automatique** — bascule automatiquement en vibreur pendant la prière puis restaure le volume initial (durée réglable de 10 à 45 min)
 - 🧭 **Boussole Qibla dynamique** — pointe vers la Kaaba avec les capteurs du téléphone (magnétomètre + accéléromètre)
 - ⏱️ **Compte à rebours dynamique** — temps restant avant la prochaine prière
 - 📍 **Géolocalisation automatique** — détection de la ville et adaptation de la méthode

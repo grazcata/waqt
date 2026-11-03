@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.hardware.*
 import android.location.Geocoder
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.android.gms.location.LocationServices
+import com.graz.waqt.service.PrayerAlarmReceiver
 import com.graz.waqt.ui.theme.WaqtTheme
 import com.graz.waqt.util.*
 import kotlinx.coroutines.delay
@@ -62,18 +64,39 @@ data class AppState(
     val qiblaAngle: Double = 0.0,
     val heading: Float = 0f,
     val locationReady: Boolean = false,
+    val hijriDate: HijriDate = HijriCalendar.fromGregorian(),
+    val notifEnabled: Boolean = true,
+    val autoSilentEnabled: Boolean = false,
+    val autoSilentDuration: Int = 20,
 )
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun WaqtApp() {
     val navController = rememberNavController()
-    var state by remember { mutableStateOf(AppState()) }
     val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("waqt_prefs", Context.MODE_PRIVATE) }
+    var state by remember {
+        mutableStateOf(
+            AppState(
+                notifEnabled = prefs.getBoolean("notif_enabled", true),
+                autoSilentEnabled = prefs.getBoolean("auto_silent_enabled", false),
+                autoSilentDuration = prefs.getInt("auto_silent_duration", 20),
+            )
+        )
+    }
 
     val locationPermissions = rememberMultiplePermissionsState(
         listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
     )
+
+    // Request notification permission on Android 13+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val notifPermission = rememberMultiplePermissionsState(listOf(Manifest.permission.POST_NOTIFICATIONS))
+        LaunchedEffect(Unit) {
+            notifPermission.launchMultiplePermissionRequest()
+        }
+    }
 
     // Request location on launch
     LaunchedEffect(locationPermissions.allPermissionsGranted) {
@@ -101,7 +124,18 @@ fun WaqtApp() {
                         state = state.copy(
                             lat = loc.latitude, lng = loc.longitude,
                             city = cityName, times = times, locationReady = true,
-                            qiblaAngle = PrayerTimesCalculator.qiblaDirection(loc.latitude, loc.longitude)
+                            qiblaAngle = PrayerTimesCalculator.qiblaDirection(loc.latitude, loc.longitude),
+                            hijriDate = HijriCalendar.fromGregorian()
+                        )
+
+                        // Schedule alarms via AlarmManager
+                        PrayerAlarmReceiver.schedulePrayerAlarms(
+                            context,
+                            times.fajrHours,
+                            times.dhuhrHours,
+                            times.asrHours,
+                            times.maghribHours,
+                            times.ishaHours
                         )
                     }
                 }
@@ -117,10 +151,19 @@ fun WaqtApp() {
             val cal = Calendar.getInstance()
             val tz = TimeZone.getDefault().rawOffset / 3600000.0
             val calc = PrayerTimesCalculator(state.method, state.asrJuristic)
-            state = state.copy(times = calc.calculate(
+            val times = calc.calculate(
                 cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH),
                 state.lat, state.lng, tz
-            ))
+            )
+            state = state.copy(times = times)
+            PrayerAlarmReceiver.schedulePrayerAlarms(
+                context,
+                times.fajrHours,
+                times.dhuhrHours,
+                times.asrHours,
+                times.maghribHours,
+                times.ishaHours
+            )
         }
     }
 
@@ -209,9 +252,17 @@ fun PrayersScreen(state: AppState) {
         Text("Waqt", fontSize = 16.sp, fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.primary.copy(0.7f))
         Text(state.city, fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.6f))
+        
+        // Dates: Gregorian & Hijri
+        Spacer(Modifier.height(4.dp))
         Text(
-            SimpleDateFormat("EEEE d MMMM yyyy", Locale.FRENCH).format(Date()),
-            fontSize = 13.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
+            state.hijriDate.formatAr(),
+            fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        Text(
+            "${SimpleDateFormat("EEEE d MMMM yyyy", Locale.FRENCH).format(Date())} • ${state.hijriDate.formatFr()}",
+            fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.5f)
         )
 
         Spacer(Modifier.height(16.dp))
@@ -444,6 +495,78 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
         }
 
         Spacer(Modifier.height(24.dp))
+
+        // Notifications & Silence
+        Text("NOTIFICATIONS & MODE SILENCIEUX", fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground.copy(0.5f), letterSpacing = 1.sp)
+        Spacer(Modifier.height(8.dp))
+
+        val context = LocalContext.current
+        val prefs = remember { context.getSharedPreferences("waqt_prefs", Context.MODE_PRIVATE) }
+
+        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+            Column(Modifier.padding(16.dp)) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Rappels de prière", fontWeight = FontWeight.Medium)
+                        Text("Notification avec sonnerie à chaque prière", fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+                    }
+                    Switch(
+                        checked = state.notifEnabled,
+                        onCheckedChange = { checked ->
+                            prefs.edit().putBoolean("notif_enabled", checked).apply()
+                            onUpdate(state.copy(notifEnabled = checked))
+                        }
+                    )
+                }
+
+                Divider(Modifier.padding(vertical = 12.dp))
+
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Mode silencieux automatique", fontWeight = FontWeight.Medium)
+                        Text("Passe en vibreur pendant la prière puis restaure", fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+                    }
+                    Switch(
+                        checked = state.autoSilentEnabled,
+                        onCheckedChange = { checked ->
+                            prefs.edit().putBoolean("auto_silent_enabled", checked).apply()
+                            onUpdate(state.copy(autoSilentEnabled = checked))
+                        }
+                    )
+                }
+
+                if (state.autoSilentEnabled) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "Durée du silence : ${state.autoSilentDuration} minutes",
+                        fontSize = 12.sp, color = MaterialTheme.colorScheme.primary
+                    )
+                    Slider(
+                        value = state.autoSilentDuration.toFloat(),
+                        onValueChange = { dur ->
+                            val d = dur.toInt()
+                            prefs.edit().putInt("auto_silent_duration", d).apply()
+                            onUpdate(state.copy(autoSilentDuration = d))
+                        },
+                        valueRange = 10f..45f,
+                        steps = 6
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
         Text("INFORMATIONS", fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onBackground.copy(0.5f), letterSpacing = 1.sp)
         Spacer(Modifier.height(8.dp))
@@ -455,12 +578,14 @@ fun SettingsScreen(state: AppState, onUpdate: (AppState) -> Unit) {
                     fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(0.5f))
                 Spacer(Modifier.height(8.dp))
                 Text("🕋 Qibla: %.1f°".format(state.qiblaAngle), fontSize = 14.sp)
+                Spacer(Modifier.height(4.dp))
+                Text("📅 Date hégirienne : ${state.hijriDate.formatAr()}", fontSize = 14.sp)
             }
         }
 
         Spacer(Modifier.height(24.dp))
         Text(
-            "Waqt v1.1.0 — Usage personnel\nCalculs astronomiques locaux",
+            "Waqt v1.2.0 — Usage personnel\nCalculs astronomiques & Hégiriens locaux",
             fontSize = 12.sp, color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
             textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
         )
