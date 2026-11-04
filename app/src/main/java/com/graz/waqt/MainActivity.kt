@@ -84,6 +84,7 @@ data class AppState(
     val silentIsha: Boolean = true,
     val silentJumuaaSpecial: Boolean = true,
     val silentJumuaaDuration: Int = 45,
+    val preReminderEnabled: Boolean = false,
     val preReminderMinutes: Int = 15,
     val preReminderFajr: Boolean = false,
     val preReminderDhuhr: Boolean = false,
@@ -118,6 +119,7 @@ fun WaqtApp() {
                 silentIsha = prefs.getBoolean("silent_isha", true),
                 silentJumuaaSpecial = prefs.getBoolean("silent_jumuaa_special", true),
                 silentJumuaaDuration = prefs.getInt("silent_jumuaa_duration", 45),
+                preReminderEnabled = prefs.getBoolean("pre_reminder_enabled", false),
                 preReminderMinutes = prefs.getInt("pre_reminder_minutes", 15),
                 preReminderFajr = prefs.getBoolean("pre_reminder_fajr", false),
                 preReminderDhuhr = prefs.getBoolean("pre_reminder_dhuhr", false),
@@ -159,6 +161,16 @@ fun WaqtApp() {
             times = initialTimes,
             qiblaAngle = PrayerTimesCalculator.qiblaDirection(savedLat, savedLng),
             hijriDate = HijriCalendar.fromGregorian()
+        )
+
+        // Schedule alarms immediately on launch based on main prayer times
+        PrayerAlarmReceiver.schedulePrayerAlarms(
+            context,
+            initialTimes.fajrHours,
+            initialTimes.dhuhrHours,
+            initialTimes.asrHours,
+            initialTimes.maghribHours,
+            initialTimes.ishaHours
         )
     }
 

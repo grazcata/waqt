@@ -4,7 +4,9 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 
 ## Fonctionnalités
 
+- ⏳ **Rappels d'anticipation avant la prière avec interrupteur dédié** — interrupteur maître dans les réglages pour activer/désactiver l'ensemble de l'anticipation, avec réglage de 5 à 30 min et choix des prières concernées
 - 🔔 **Activation / Désactivation du son par prière** — bouton cloche interactif (🔔 / 🔕) directement sur chaque ligne de prière dans l'écran d'accueil
+- 📢 **Moteur Audio d'Adhan à l'heure exacte** — sonne rigoureusement aux heures affichées sur l'écran d'accueil (Fajr, Dhuhr, Asr, Maghrib, Isha) sans confusion avec l'anticipation
 - 🎨 **Interface Moderne & Épurée** — design Material 3 soigné, cartes thématiques et typographie soignée
 - 🕌 **Nouvelle Icône Vectorielle Mosquée** — dôme islamique stylisé, minarets et croissant doré
 - 🕌 **Horaires des 5 prières + Chourouq** — calculs astronomiques locaux (aucune API externe requise)

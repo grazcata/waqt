@@ -295,90 +295,103 @@ fun SettingsScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Column(Modifier.padding(16.dp)) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Délai d'anticipation", fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.primary.copy(0.12f)
-                    ) {
-                        Text(
-                            text = "${state.preReminderMinutes} min avant",
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
+                SettingsSwitchRow(
+                    title = "Activer les rappels d'anticipation",
+                    subtitle = "Notification envoyée avant l'heure de la prière",
+                    checked = state.preReminderEnabled,
+                    onCheckedChange = { checked ->
+                        prefs.edit().putBoolean("pre_reminder_enabled", checked).apply()
+                        onUpdate(state.copy(preReminderEnabled = checked))
                     }
-                }
-
-                Slider(
-                    value = state.preReminderMinutes.toFloat(),
-                    onValueChange = { min ->
-                        val m = min.toInt()
-                        prefs.edit().putInt("pre_reminder_minutes", m).apply()
-                        onUpdate(state.copy(preReminderMinutes = m))
-                    },
-                    valueRange = 5f..30f,
-                    steps = 4
                 )
 
-                Spacer(Modifier.height(6.dp))
-                Text("Activer pour :", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(0.7f))
-                Spacer(Modifier.height(6.dp))
+                if (state.preReminderEnabled) {
+                    Spacer(Modifier.height(14.dp))
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Délai d'anticipation", fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(0.12f)
+                        ) {
+                            Text(
+                                text = "${state.preReminderMinutes} min avant",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
 
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                    SelectablePrayerChip(
-                        label = "Fajr (Sahur)",
-                        selected = state.preReminderFajr,
-                        onClick = {
-                            val v = !state.preReminderFajr
-                            prefs.edit().putBoolean("pre_reminder_fajr", v).apply()
-                            onUpdate(state.copy(preReminderFajr = v))
-                        }
+                    Slider(
+                        value = state.preReminderMinutes.toFloat(),
+                        onValueChange = { min ->
+                            val m = min.toInt()
+                            prefs.edit().putInt("pre_reminder_minutes", m).apply()
+                            onUpdate(state.copy(preReminderMinutes = m))
+                        },
+                        valueRange = 5f..30f,
+                        steps = 4
                     )
-                    SelectablePrayerChip(
-                        label = "Dhuhr",
-                        selected = state.preReminderDhuhr,
-                        onClick = {
-                            val v = !state.preReminderDhuhr
-                            prefs.edit().putBoolean("pre_reminder_dhuhr", v).apply()
-                            onUpdate(state.copy(preReminderDhuhr = v))
-                        }
-                    )
-                    SelectablePrayerChip(
-                        label = "Asr",
-                        selected = state.preReminderAsr,
-                        onClick = {
-                            val v = !state.preReminderAsr
-                            prefs.edit().putBoolean("pre_reminder_asr", v).apply()
-                            onUpdate(state.copy(preReminderAsr = v))
-                        }
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                    SelectablePrayerChip(
-                        label = "Maghrib (Iftar)",
-                        selected = state.preReminderMaghrib,
-                        onClick = {
-                            val v = !state.preReminderMaghrib
-                            prefs.edit().putBoolean("pre_reminder_maghrib", v).apply()
-                            onUpdate(state.copy(preReminderMaghrib = v))
-                        }
-                    )
-                    SelectablePrayerChip(
-                        label = "Isha",
-                        selected = state.preReminderIsha,
-                        onClick = {
-                            val v = !state.preReminderIsha
-                            prefs.edit().putBoolean("pre_reminder_isha", v).apply()
-                            onUpdate(state.copy(preReminderIsha = v))
-                        }
-                    )
+
+                    Spacer(Modifier.height(8.dp))
+                    Text("Prières avec rappel anticipé :", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(0.7f))
+                    Spacer(Modifier.height(6.dp))
+
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                        SelectablePrayerChip(
+                            label = "Fajr (Sahur)",
+                            selected = state.preReminderFajr,
+                            onClick = {
+                                val v = !state.preReminderFajr
+                                prefs.edit().putBoolean("pre_reminder_fajr", v).apply()
+                                onUpdate(state.copy(preReminderFajr = v))
+                            }
+                        )
+                        SelectablePrayerChip(
+                            label = "Dhuhr",
+                            selected = state.preReminderDhuhr,
+                            onClick = {
+                                val v = !state.preReminderDhuhr
+                                prefs.edit().putBoolean("pre_reminder_dhuhr", v).apply()
+                                onUpdate(state.copy(preReminderDhuhr = v))
+                            }
+                        )
+                        SelectablePrayerChip(
+                            label = "Asr",
+                            selected = state.preReminderAsr,
+                            onClick = {
+                                val v = !state.preReminderAsr
+                                prefs.edit().putBoolean("pre_reminder_asr", v).apply()
+                                onUpdate(state.copy(preReminderAsr = v))
+                            }
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+                        SelectablePrayerChip(
+                            label = "Maghrib (Iftar)",
+                            selected = state.preReminderMaghrib,
+                            onClick = {
+                                val v = !state.preReminderMaghrib
+                                prefs.edit().putBoolean("pre_reminder_maghrib", v).apply()
+                                onUpdate(state.copy(preReminderMaghrib = v))
+                            }
+                        )
+                        SelectablePrayerChip(
+                            label = "Isha",
+                            selected = state.preReminderIsha,
+                            onClick = {
+                                val v = !state.preReminderIsha
+                                prefs.edit().putBoolean("pre_reminder_isha", v).apply()
+                                onUpdate(state.copy(preReminderIsha = v))
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -575,7 +588,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.7.0 • Usage personnel\nBoutons d'Adhan individuels par prière",
+                "Version 1.8.0 • Usage personnel\nAdhan précis & Interrupteur maître des rappels",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center

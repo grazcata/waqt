@@ -301,10 +301,12 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                         )
                     }
 
-                // Schedule pre-prayer reminder if enabled
+                // Schedule pre-prayer reminder ONLY if master toggle is ON and specific prayer enabled
                 val prefs = context.getSharedPreferences("waqt_prefs", Context.MODE_PRIVATE)
+                val preRemindersMasterEnabled = prefs.getBoolean("pre_reminder_enabled", false)
                 val preRemindKey = "pre_reminder_" + name.lowercase()
-                if (prefs.getBoolean(preRemindKey, false)) {
+
+                if (preRemindersMasterEnabled && prefs.getBoolean(preRemindKey, false)) {
                     val preMin = prefs.getInt("pre_reminder_minutes", 15)
                     val preCal = (cal.clone() as Calendar).apply {
                         add(Calendar.MINUTE, -preMin)
