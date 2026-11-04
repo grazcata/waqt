@@ -9,7 +9,8 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 - 📢 **Moteur Audio d'Adhan à l'heure exacte** — sonne rigoureusement aux heures affichées sur l'écran d'accueil (Fajr, Dhuhr, Asr, Maghrib, Isha) sans confusion avec l'anticipation
 - 🎨 **Interface Moderne & Épurée** — design Material 3 soigné, cartes thématiques et typographie soignée
 - 🕌 **Nouvelle Icône Vectorielle Mosquée** — dôme islamique stylisé, minarets et croissant doré
-- 🕌 **Horaires des 5 prières + Chourouq** — calculs astronomiques locaux (aucune API externe requise)
+- 🕌 **Horaires des 5 prières + Chourouq** — calculs astronomiques locaux calibrés selon la règle officielle du Ministère des Habous du Maroc (marge de sécurité de +5 min au Zawaal pour le Dhuhr, réfraction du lever, marge au coucher pour Maghrib)
+- 📅 **Calendrier Hégirien (Hijri) synchronisé** — alignement exact avec le calendrier officiel marocain (ex: 23 Joumada al-oula)
 - 📅 **Calendrier Mensuel Interactif & Dates Hégiriennes** — navigation par mois, calcul des horaires de n'importe quel jour, repères des Jours Blancs (13, 14, 15 Hijri) et Joumou'a
 - ⏳ **Rappels d'anticipation avant la prière** — notification d'alerte réglable (de 5 à 30 min avant, ex: Sahur avant Fajr) paramétrable par prière
 - 🔕 **Mode silencieux intelligent par prière** — activation individuelle par prière avec prise en charge spéciale du Vendredi (**Joumou'a**, durée de silence allongée pour le prêche)

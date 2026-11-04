@@ -64,7 +64,7 @@ object HijriCalendar {
         val hYear = (30 * cyc + j).toInt() + 1
         val doy = rem - floor(j * 354.366) - 0.5
         val hMonth = minOf(12, maxOf(1, floor((doy + 0.5) / 29.5305).toInt() + 1))
-        val hDay = maxOf(1, (doy - floor((hMonth - 1) * 29.5305) + 0.5).toInt() + 1)
+        val hDay = maxOf(1, (doy - floor((hMonth - 1) * 29.5305) - 0.5).toInt() + 1)
 
         val monthIdx = (hMonth - 1).coerceIn(0, 11)
         return HijriDate(

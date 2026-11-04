@@ -116,15 +116,23 @@ class PrayerTimesCalculator(
         return noon + ha
     }
 
-    fun calculate(year: Int, month: Int, day: Int, lat: Double, lng: Double, timezone: Double): PrayerTimes {
+    fun calculate(year: Int, month: Int, day: Int, lat: Double, lng: Double, timezone: Double, altitude: Double = 0.0): PrayerTimes {
         val jd = julianDate(year, month, day) - lng / (15.0 * 24.0)
         val diff = timezone - lng / 15.0
 
+        val altCorr = if (altitude > 0) 0.0347 * kotlin.math.sqrt(altitude) else 0.0
+
+        // Moroccan Habous specific safety margins (Zawaal +5 min, Maghrib +3 min, sunrise refraction)
+        val isMorocco = method == CalculationMethod.MOROCCO
+        val dhuhrMargin = if (isMorocco) 5.0 / 60.0 else 0.0 // +5 min zawaal safety
+        val maghribMargin = if (isMorocco) 2.5 / 60.0 else 0.0 // +2.5 min sunset safety
+        val sunriseAdj = if (isMorocco) -2.0 / 60.0 else 0.0
+
         val fajr = sunAngleTime(-method.fajrAngle, jd, lat, false) + diff
-        val sunrise = sunAngleTime(-0.833, jd, lat, false) + diff
-        val dhuhr = midDay(jd) + diff
+        val sunrise = sunAngleTime(-(0.833 + altCorr), jd, lat, false) + diff + sunriseAdj
+        val dhuhr = midDay(jd) + diff + dhuhrMargin
         val asr = asrTime(jd, lat) + diff
-        val sunset = sunAngleTime(-0.833, jd, lat, true) + diff
+        val sunset = sunAngleTime(-(0.833 + altCorr), jd, lat, true) + diff + maghribMargin
         val isha = if (method.ishaMinutes > 0) {
             sunset + method.ishaMinutes / 60.0
         } else {

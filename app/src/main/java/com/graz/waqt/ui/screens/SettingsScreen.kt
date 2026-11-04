@@ -588,7 +588,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.8.0 • Usage personnel\nAdhan précis & Interrupteur maître des rappels",
+                "Version 1.8.1 • Usage personnel\nCalibrage officiel Habous Maroc (Inezgane)",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center
