@@ -246,10 +246,11 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
             val nowSec = now.get(Calendar.HOUR_OF_DAY) * 3600 + now.get(Calendar.MINUTE) * 60 + now.get(Calendar.SECOND)
 
             prayers.forEachIndexed { index, (name, icon, hours) ->
-                val targetSec = (hours * 3600).toInt()
+                val h = hours.toInt()
+                val m = ((hours - h) * 60).toInt()
+                val targetSec = h * 3600 + m * 60
+
                 val cal = Calendar.getInstance().apply {
-                    val h = hours.toInt()
-                    val m = ((hours - h) * 60).toInt()
                     set(Calendar.HOUR_OF_DAY, h)
                     set(Calendar.MINUTE, m)
                     set(Calendar.SECOND, 0)
@@ -272,34 +273,31 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                 )
 
                 try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        if (alarmManager.canScheduleExactAlarms()) {
+                    val alarmClockInfo = AlarmManager.AlarmClockInfo(cal.timeInMillis, pendingIntent)
+                    alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+                } catch (_: Exception) {
+                    try {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             alarmManager.setExactAndAllowWhileIdle(
                                 AlarmManager.RTC_WAKEUP,
                                 cal.timeInMillis,
                                 pendingIntent
                             )
                         } else {
-                            // Fallback to inexact alarm if user hasn't granted exact alarm permission
-                            alarmManager.setAndAllowWhileIdle(
+                            alarmManager.setExact(
                                 AlarmManager.RTC_WAKEUP,
                                 cal.timeInMillis,
                                 pendingIntent
                             )
                         }
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        alarmManager.setExactAndAllowWhileIdle(
-                            AlarmManager.RTC_WAKEUP,
-                            cal.timeInMillis,
-                            pendingIntent
-                        )
-                    } else {
-                        alarmManager.setExact(
+                    } catch (_: Exception) {
+                        alarmManager.set(
                             AlarmManager.RTC_WAKEUP,
                             cal.timeInMillis,
                             pendingIntent
                         )
                     }
+                }
 
                 // Schedule pre-prayer reminder ONLY if master toggle is ON and specific prayer enabled
                 val prefs = context.getSharedPreferences("waqt_prefs", Context.MODE_PRIVATE)
@@ -337,14 +335,6 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                             }
                         } catch (_: SecurityException) {}
                     }
-                }
-                } catch (e: SecurityException) {
-                    // Fail gracefully with inexact alarm if security exception occurs
-                    alarmManager.set(
-                        AlarmManager.RTC_WAKEUP,
-                        cal.timeInMillis,
-                        pendingIntent
-                    )
                 }
             }
         }

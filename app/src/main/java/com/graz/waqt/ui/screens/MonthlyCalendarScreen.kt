@@ -96,7 +96,7 @@ fun MonthlyCalendarScreen(state: AppState) {
     // Calculate prayer times for selected day
     val selectedTimes = remember(selectedDate, state.method, state.asrJuristic) {
         val cal = Calendar.getInstance().apply { time = selectedDate }
-        val tz = TimeZone.getDefault().rawOffset / 3600000.0
+        val tz = TimeZone.getDefault().getOffset(selectedDate.time) / 3600000.0
         val calc = PrayerTimesCalculator(state.method, state.asrJuristic)
         calc.calculate(
             cal.get(Calendar.YEAR),

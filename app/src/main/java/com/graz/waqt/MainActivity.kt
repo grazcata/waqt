@@ -55,7 +55,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ─── ViewModel-like state holder ───
+fun getCurrentTimezoneOffset(): Double {
+    val tz = TimeZone.getDefault()
+    val now = Date().time
+    return tz.getOffset(now) / 3600000.0
+}
 data class AppState(
     val lat: Double = 0.0,
     val lng: Double = 0.0,
@@ -147,7 +151,7 @@ fun WaqtApp() {
         val savedLat = prefs.getFloat("saved_lat", 33.5731f).toDouble()
         val savedLng = prefs.getFloat("saved_lng", -7.5898f).toDouble()
         val savedCity = prefs.getString("saved_city", "Casablanca") ?: "Casablanca"
-        val tz = TimeZone.getDefault().rawOffset / 3600000.0
+        val tz = getCurrentTimezoneOffset()
         val cal = Calendar.getInstance()
         val calc = PrayerTimesCalculator(state.method, state.asrJuristic)
         val initialTimes = calc.calculate(
@@ -182,7 +186,7 @@ fun WaqtApp() {
                 
                 // Helper to update state with any valid location
                 fun applyLocation(loc: android.location.Location) {
-                    val tz = TimeZone.getDefault().rawOffset / 3600000.0
+                    val tz = getCurrentTimezoneOffset()
                     val cal = Calendar.getInstance()
                     val calc = PrayerTimesCalculator(state.method, state.asrJuristic)
                     val times = calc.calculate(
@@ -245,7 +249,7 @@ fun WaqtApp() {
     LaunchedEffect(state.method, state.asrJuristic) {
         if (state.locationReady) {
             val cal = Calendar.getInstance()
-            val tz = TimeZone.getDefault().rawOffset / 3600000.0
+            val tz = getCurrentTimezoneOffset()
             val calc = PrayerTimesCalculator(state.method, state.asrJuristic)
             val times = calc.calculate(
                 cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH),

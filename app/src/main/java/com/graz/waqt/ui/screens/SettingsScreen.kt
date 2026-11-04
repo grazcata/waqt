@@ -588,7 +588,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.8.1 • Usage personnel\nCalibrage officiel Habous Maroc (Inezgane)",
+                "Version 1.8.2 • Usage personnel\nAdhan haute priorité (AlarmClock) & Fuseau dynamique",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center
