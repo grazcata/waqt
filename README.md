@@ -4,6 +4,7 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 
 ## Fonctionnalités
 
+- 📱 **Retourner pour couper l'Adhan (Flip to Mute)** — posez simplement votre téléphone face contre table / retournez-le pour interrompre l'Adhan instantanément via l'accéléromètre
 - ⏳ **Rappels d'anticipation avant la prière avec interrupteur dédié** — interrupteur maître dans les réglages pour activer/désactiver l'ensemble de l'anticipation, avec réglage de 5 à 30 min et choix des prières concernées
 - 🔔 **Activation / Désactivation du son par prière** — bouton cloche interactif (🔔 / 🔕) directement sur chaque ligne de prière dans l'écran d'accueil
 - 📢 **Moteur Audio d'Adhan à l'heure exacte (setAlarmClock)** — sonne rigoureusement aux heures affichées sur l'écran d'accueil avec priorité maximale (ignore le mode Doze et les restrictions batterie)

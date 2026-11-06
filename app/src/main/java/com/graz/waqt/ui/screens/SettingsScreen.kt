@@ -267,6 +267,18 @@ fun SettingsScreen(
                 Divider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
 
                 SettingsSwitchRow(
+                    title = "Retourner pour couper l'Adhan",
+                    subtitle = "Posez le téléphone face contre table pour couper le son",
+                    checked = state.flipToMuteEnabled,
+                    onCheckedChange = { checked ->
+                        prefs.edit().putBoolean("flip_to_mute_enabled", checked).apply()
+                        onUpdate(state.copy(flipToMuteEnabled = checked))
+                    }
+                )
+
+                Divider(Modifier.padding(vertical = 14.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
+
+                SettingsSwitchRow(
                     title = "Notifications simples",
                     subtitle = "Bannière et sonnerie discrète si l'Adhan est coupé",
                     checked = state.notifEnabled,
@@ -588,7 +600,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 1.8.2 • Usage personnel\nAdhan haute priorité (AlarmClock) & Fuseau dynamique",
+                "Version 1.9.0 • Usage personnel\nRetourner pour couper l'Adhan (Flip to Mute)",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center

@@ -6,6 +6,10 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.os.Build
@@ -27,6 +31,11 @@ class AdhanPlaybackService : Service() {
     private val playlist = mutableListOf<Int>()
     private var currentIndex = 0
     private var prayerName: String = "Prière"
+    private var sensorManager: SensorManager? = null
+    private var accelerometer: Sensor? = null
+    private var flipSensorListener: SensorEventListener? = null
+    private var flipToMuteEnabled = true
+    private var hasStartedFaceUp = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -45,6 +54,12 @@ class AdhanPlaybackService : Service() {
         startForegroundServiceNotification()
         buildPlaylist(style, isFajr)
         playNextTrack()
+
+        val prefs = getSharedPreferences("waqt_prefs", Context.MODE_PRIVATE)
+        flipToMuteEnabled = prefs.getBoolean("flip_to_mute_enabled", true)
+        if (flipToMuteEnabled) {
+            setupFlipToMuteDetector()
+        }
 
         // Also launch the full screen alarm activity
         val alarmIntent = Intent(this, AdhanAlarmActivity::class.java).apply {
@@ -167,7 +182,45 @@ class AdhanPlaybackService : Service() {
         startForeground(NOTIFICATION_ID, notification)
     }
 
+    private fun setupFlipToMuteDetector() {
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        hasStartedFaceUp = false
+
+        flipSensorListener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent?) {
+                if (event == null || event.sensor.type != Sensor.TYPE_ACCELEROMETER) return
+
+                val z = event.values[2] // Z-axis gravity
+
+                // Detect if phone was initially facing up (or upright)
+                if (z > 3.0f) {
+                    hasStartedFaceUp = true
+                }
+
+                // If phone was face-up and is now flipped face-down (Z is strongly negative)
+                if (hasStartedFaceUp && z < -7.0f) {
+                    // Turn phone over -> silence Adhan immediately!
+                    stopAdhan()
+                }
+            }
+
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+
+        accelerometer?.let {
+            sensorManager?.registerListener(flipSensorListener, it, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
     private fun stopAdhan() {
+        try {
+            if (flipSensorListener != null && sensorManager != null) {
+                sensorManager?.unregisterListener(flipSensorListener)
+                flipSensorListener = null
+            }
+        } catch (_: Exception) {}
+
         try {
             mediaPlayer?.stop()
             mediaPlayer?.release()
