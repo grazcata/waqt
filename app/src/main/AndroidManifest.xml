@@ -55,5 +55,18 @@
                 <action android:name="com.graz.waqt.ACTION_RESTORE_RINGER" />
             </intent-filter>
         </receiver>
+
+        <!-- Home Screen Large Widget (4x2 Salatuk Style) -->
+        <receiver
+            android:name=".widget.WaqtLargeWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.graz.waqt.ACTION_REFRESH_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_salatuk_large_info" />
+        </receiver>
     </application>
 </manifest>

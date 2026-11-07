@@ -227,6 +227,9 @@ fun WaqtApp() {
                         times.maghribHours,
                         times.ishaHours
                     )
+
+                    // Refresh Widgets
+                    com.graz.waqt.widget.WaqtLargeWidgetProvider.updateAllWidgets(context)
                 }
 
                 // Try lastLocation first, fallback to active current location request if null
