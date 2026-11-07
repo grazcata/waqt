@@ -130,9 +130,9 @@ class WaqtLargeWidgetProvider : AppWidgetProvider() {
             views.setTextColor(R.id.widget_name_maghrib, getHighlightColor("المغرب"))
             views.setTextColor(R.id.widget_name_isha, getHighlightColor("العشاء"))
 
-            // Click to open main application
+            // Global Click to open main application on the ENTIRE widget surface
             val appIntent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
             val pendingIntent = PendingIntent.getActivity(
                 context,
@@ -140,9 +140,16 @@ class WaqtLargeWidgetProvider : AppWidgetProvider() {
                 appIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_city, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_date, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_next_prayer_name, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_next_prayer_countdown, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_col_fajr, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_col_dhuhr, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_col_asr, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_col_maghrib, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_col_isha, pendingIntent)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }

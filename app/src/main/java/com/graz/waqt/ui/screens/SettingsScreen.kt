@@ -600,7 +600,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 2.0.0 • Usage personnel\nWidget Écran d'accueil 4x2 style Salatuk inclus",
+                "Version 2.0.1 • Usage personnel\nWidget Écran d'accueil interactif & réactif",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center
