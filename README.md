@@ -4,6 +4,7 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 
 ## Fonctionnalités
 
+- 🎨 **Palette Visuelle Émeraude & Or Unifiée** — barre de navigation inférieure stylisée (pilule de sélection vert émeraude, icône blanche, typographie contrastée) en parfaite harmonie avec le thème islamique
 - 🏠 **Widget Écran d'accueil 4x2 style Salatuk** — reproduction fidèle du widget populaire : nom de la ville (أكادير), date hégirienne, bandeau émeraude avec décompte vers la prochaine prière, et tableau complet des 5 prières du jour
 - 📱 **Retourner pour couper l'Adhan (Flip to Mute)** — posez simplement votre téléphone face contre table / retournez-le pour interrompre l'Adhan instantanément via l'accéléromètre
 - ⏳ **Rappels d'anticipation avant la prière avec interrupteur dédié** — interrupteur maître dans les réglages pour activer/désactiver l'ensemble de l'anticipation, avec réglage de 5 à 30 min et choix des prières concernées

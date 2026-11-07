@@ -275,30 +275,45 @@ fun WaqtApp() {
     Scaffold(
         bottomBar = {
             var selectedTab by remember { mutableIntStateOf(0) }
-            NavigationBar {
+            val itemColors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = MaterialTheme.colorScheme.primary,
+                unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(0.45f),
+                unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(0.45f)
+            )
+
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 4.dp
+            ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Schedule, "Horaires") },
-                    label = { Text("Horaires") },
+                    label = { Text("Horaires", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
                     selected = selectedTab == 0,
-                    onClick = { selectedTab = 0; navController.navigate("prayers") { popUpTo(0) } }
+                    onClick = { selectedTab = 0; navController.navigate("prayers") { popUpTo(0) } },
+                    colors = itemColors
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.CalendarMonth, "Calendrier") },
-                    label = { Text("Calendrier") },
+                    label = { Text("Calendrier", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
                     selected = selectedTab == 1,
-                    onClick = { selectedTab = 1; navController.navigate("calendar") { popUpTo(0) } }
+                    onClick = { selectedTab = 1; navController.navigate("calendar") { popUpTo(0) } },
+                    colors = itemColors
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Explore, "Qibla") },
-                    label = { Text("Qibla") },
+                    label = { Text("Qibla", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Normal) },
                     selected = selectedTab == 2,
-                    onClick = { selectedTab = 2; navController.navigate("qibla") { popUpTo(0) } }
+                    onClick = { selectedTab = 2; navController.navigate("qibla") { popUpTo(0) } },
+                    colors = itemColors
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Settings, "Réglages") },
-                    label = { Text("Réglages") },
+                    label = { Text("Réglages", fontWeight = if (selectedTab == 3) FontWeight.Bold else FontWeight.Normal) },
                     selected = selectedTab == 3,
-                    onClick = { selectedTab = 3; navController.navigate("settings") { popUpTo(0) } }
+                    onClick = { selectedTab = 3; navController.navigate("settings") { popUpTo(0) } },
+                    colors = itemColors
                 )
             }
         }
