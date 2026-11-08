@@ -100,8 +100,7 @@ class WaqtLargeWidgetProvider : AppWidgetProvider() {
 
             val hoursLeft = diffSec / 3600
             val minutesLeft = (diffSec % 3600) / 60
-            val secondsLeft = diffSec % 60
-            val countdownStr = "- %02d:%02d:%02d".format(hoursLeft, minutesLeft, secondsLeft)
+            val countdownFormatted = "- %02d:%02d".format(hoursLeft, minutesLeft)
 
             val views = RemoteViews(context.packageName, R.layout.widget_salatuk_large)
 
@@ -109,12 +108,9 @@ class WaqtLargeWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_city, city)
             views.setTextViewText(R.id.widget_date, "${hijri.day} ${hijri.monthNameAr} ${hijri.year}")
 
-            // Center Banner: Next Prayer & Native System Live Countdown
+            // Center Banner: Countdown & Next Prayer (e.g. "- 01:14 • العصر")
+            views.setTextViewText(R.id.widget_next_prayer_countdown, countdownFormatted)
             views.setTextViewText(R.id.widget_next_prayer_name, nextPrayerName)
-            
-            // Configure Chronometer base time: system elapsed time + remaining milliseconds
-            val targetElapsedMillis = android.os.SystemClock.elapsedRealtime() + (diffSec * 1000L)
-            views.setChronometer(R.id.widget_next_prayer_chronometer, targetElapsedMillis, "- %s", true)
 
             // Table of 5 Prayers
             views.setTextViewText(R.id.widget_time_fajr, times.fajr)
@@ -146,8 +142,8 @@ class WaqtLargeWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_city, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_date, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_next_prayer_countdown, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_next_prayer_name, pendingIntent)
-            views.setOnClickPendingIntent(R.id.widget_next_prayer_chronometer, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_col_fajr, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_col_dhuhr, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_col_asr, pendingIntent)

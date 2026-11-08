@@ -45,12 +45,12 @@
         android:paddingHorizontal="16dp">
 
         <TextView
-            android:id="@+id/widget_next_prayer_name"
+            android:id="@+id/widget_next_prayer_countdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="الظهر"
+            android:text="- 01:14"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView
@@ -61,14 +61,13 @@
             android:textColor="#88FFFFFF"
             android:textSize="16sp" />
 
-        <!-- Native Android System Chronometer: counts down second-by-second with ZERO battery drain -->
-        <Chronometer
-            android:id="@+id/widget_next_prayer_chronometer"
+        <TextView
+            android:id="@+id/widget_next_prayer_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:countDown="true"
+            android:text="العصر"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
     </LinearLayout>
 

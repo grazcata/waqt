@@ -600,7 +600,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 2.1.1 • Usage personnel\nWidget décompte en direct à la seconde (Chronometer)",
+                "Version 2.2.0 • Usage personnel\nSurvie au redémarrage (BootReceiver) & Format Widget Salatuk",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center

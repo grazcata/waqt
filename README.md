@@ -4,7 +4,8 @@ Application Android native (Kotlin / Jetpack Compose) pour les horaires de priè
 
 ## Fonctionnalités
 
-- 🏠 **Widget Écran d'accueil 4x2 avec décompte système en direct à la seconde** — utilise le composant natif Android `Chronometer` (compte à rebours dynamique seconde par seconde géré directement par le launcher système sans impacter la batterie)
+- 🔄 **Survie au redémarrage du téléphone (`BootReceiver`)** — toutes les alarmes de prière et le widget sont automatiquement reprogrammés dès le démarrage d'Android (`BOOT_COMPLETED`), garantissant les notifications même après extinction
+- 🏠 **Widget Écran d'accueil 4x2 style Salatuk** — reproduction fidèle du format officiel : nom de la ville (ex: Dajla / Agadir), date hégirienne, bandeau vert central avec décompte net (ex: `- 01:14 • العصر`) et les 5 prières du jour en dessous
 - 🎨 **Palette Visuelle Émeraude & Or Unifiée** — barre de navigation inférieure stylisée (pilule de sélection vert émeraude, icône blanche, typographie contrastée) en parfaite harmonie avec le thème islamique
 - 📱 **Retourner pour couper l'Adhan (Flip to Mute)** — posez simplement votre téléphone face contre table / retournez-le pour interrompre l'Adhan instantanément via l'accéléromètre
 - ⏳ **Rappels d'anticipation avant la prière avec interrupteur dédié** — interrupteur maître dans les réglages pour activer/désactiver l'ensemble de l'anticipation, avec réglage de 5 à 30 min et choix des prières concernées
