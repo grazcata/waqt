@@ -44,11 +44,11 @@
         android:paddingVertical="10dp"
         android:paddingHorizontal="16dp">
 
-        <TextView
-            android:id="@+id/widget_next_prayer_countdown"
+        <Chronometer
+            android:id="@+id/widget_next_prayer_chronometer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="- 01:14"
+            android:countDown="true"
             android:textColor="#FFFFFF"
             android:textSize="20sp"
             android:textStyle="bold" />

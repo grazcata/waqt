@@ -108,8 +108,10 @@ class WaqtLargeWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.widget_city, city)
             views.setTextViewText(R.id.widget_date, "${hijri.day} ${hijri.monthNameAr} ${hijri.year}")
 
-            // Center Banner: Countdown & Next Prayer (e.g. "- 01:14 • العصر")
-            views.setTextViewText(R.id.widget_next_prayer_countdown, countdownFormatted)
+            // Center Banner: Live Chronometer Countdown & Next Prayer (e.g. "- 01:14:26 • العصر")
+            val targetElapsedMillis = android.os.SystemClock.elapsedRealtime() + (diffSec * 1000L)
+            views.setChronometerCountDown(R.id.widget_next_prayer_chronometer, true)
+            views.setChronometer(R.id.widget_next_prayer_chronometer, targetElapsedMillis, null, true)
             views.setTextViewText(R.id.widget_next_prayer_name, nextPrayerName)
 
             // Table of 5 Prayers
@@ -142,7 +144,7 @@ class WaqtLargeWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_city, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_date, pendingIntent)
-            views.setOnClickPendingIntent(R.id.widget_next_prayer_countdown, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_next_prayer_chronometer, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_next_prayer_name, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_col_fajr, pendingIntent)
             views.setOnClickPendingIntent(R.id.widget_col_dhuhr, pendingIntent)
