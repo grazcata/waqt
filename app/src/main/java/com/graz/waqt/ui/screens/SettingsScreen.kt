@@ -600,7 +600,7 @@ fun SettingsScreen(
                 letterSpacing = 2.sp
             )
             Text(
-                "Version 2.1.0 • Usage personnel\nDesign émeraude & or unifié (Navigation bar)",
+                "Version 2.1.1 • Usage personnel\nWidget décompte en direct à la seconde (Chronometer)",
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onBackground.copy(0.4f),
                 textAlign = TextAlign.Center
